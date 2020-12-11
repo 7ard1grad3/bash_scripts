@@ -8,7 +8,7 @@ toolbox="jetbrains-toolbox-1.18.7609"
 PS3='Fill action: '
 options=(\
 "Download repositories" \
-"Add repository to repositories.txt" \
+"Add a repository to repositories.txt" \
 "Generate SSH key" \
 "Copy SSH key" \
 "Install docker" \
@@ -40,7 +40,7 @@ do
             echo "Need to add $HOME/repositories.txt file with list of repositories"
             fi
             ;;
-        "Add repository to repositories.txt")
+        "Add a repository to repositories.txt")
             echo "Fill repository url: (ex:git@bitbucket.org:unilog/logivice_v2.git)"
             read -r repository
             if ! grep -Fxq "$repository" "$HOME/repositories.txt"
