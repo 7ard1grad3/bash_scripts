@@ -5,16 +5,20 @@ proj_dir="$HOME/projects"
 compose_version="1.27.4"
 toolbox="jetbrains-toolbox-1.18.7609"
 
-PS3='Fill action: '
+
 options=(\
 "Download repositories" \
 "Add a repository to repositories.txt" \
+"go to repository folder" \
 "Generate SSH key" \
 "Copy SSH key" \
+"Add SSH host" \
+"Connect to SSH host" \
 "Install docker" \
 "Install toolbox" \
 "Add script to alias" \
 "Quit")
+PS3="#:"
 select opt in "${options[@]}"
 do
     case $opt in
@@ -37,7 +41,7 @@ do
               fi
             done
             else
-            echo "Need to add $HOME/repositories.txt file with list of repositories"
+            echo "Missing repositories in $HOME/repositories.txt file"
             fi
             ;;
         "Add a repository to repositories.txt")
@@ -50,6 +54,12 @@ do
             else
               echo "repository $repository exists"
             fi
+            ;;
+        "go to repository folder")
+            select d in $proj_dir/*/;
+            do cd "$d" && $SHELL;
+            echo ">>> Invalid Selection";
+            done
             ;;
         "Generate SSH key")
             if [ -f "$ssh_dir" ]
@@ -71,6 +81,37 @@ do
             echo "Missing SSH key"
             fi
             ;;
+        "Add SSH host")
+            echo "Fill host name (without spaces):"
+            read -r host_name
+            echo "Fill IP address with user ex. root@127.0.0.1:"
+            read -r host_ip
+            if [ -f "$HOME/ssh_hosts.txt" ]
+            then
+              echo "$host_name added"
+              echo "$host_name|$host_ip" >> "$HOME/ssh_hosts.txt"
+            else
+              if ! grep -Fxq "$host_name|$host_ip" "$HOME/ssh_hosts.txt"
+              then
+                echo "$host_name added"
+                echo "$host_name|$host_ip" >> "$HOME/ssh_hosts.txt"
+              else
+                echo "$host_name already in hosts list"
+              fi
+            fi
+            ;;
+        "Connect to SSH host")
+          if [ -f "$HOME/ssh_hosts.txt" ]
+          then
+
+            select d in $(<"$HOME/ssh_hosts.txt");
+            do ssh "$( cut -d '|' -f 2 <<< "$d" )"
+            $SHELL;
+            done
+          else
+            echo "no hosts found"
+          fi
+          ;;
         "Install docker")
             echo "Will try to install docker and docker compose"
             sudo apt update
