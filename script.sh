@@ -7,13 +7,13 @@ toolbox="jetbrains-toolbox-1.18.7609"
 
 
 options=(\
-"Download repositories" \
 "Add a repository to repositories.txt" \
+"Download repositories" \
 "go to repository folder" \
-"Generate SSH key" \
-"Copy SSH key" \
 "Add SSH host" \
 "Connect to SSH host" \
+"Generate SSH key" \
+"Copy SSH key" \
 "Install docker" \
 "Install toolbox" \
 "Add script to alias" \
@@ -22,6 +22,17 @@ PS3="#:"
 select opt in "${options[@]}"
 do
     case $opt in
+        "Add a repository to repositories.txt")
+            echo "Fill repository url: (ex:git@bitbucket.org:unilog/logivice_v2.git)"
+            read -r repository
+            if ! grep -Fxq "$repository" "$HOME/repositories.txt"
+            then
+              echo "$repository added"
+              echo "$repository" >> "$HOME/repositories.txt"
+            else
+              echo "repository $repository exists"
+            fi
+            ;;
         "Download repositories")
             if [ -f "$HOME/repositories.txt" ]
             then
@@ -44,42 +55,11 @@ do
             echo "Missing repositories in $HOME/repositories.txt file"
             fi
             ;;
-        "Add a repository to repositories.txt")
-            echo "Fill repository url: (ex:git@bitbucket.org:unilog/logivice_v2.git)"
-            read -r repository
-            if ! grep -Fxq "$repository" "$HOME/repositories.txt"
-            then
-              echo "$repository added"
-              echo "$repository" >> "$HOME/repositories.txt"
-            else
-              echo "repository $repository exists"
-            fi
-            ;;
         "go to repository folder")
             select d in $proj_dir/*/;
             do cd "$d" && $SHELL;
             echo ">>> Invalid Selection";
             done
-            ;;
-        "Generate SSH key")
-            if [ -f "$ssh_dir" ]
-            then
-            echo "SSH key exist"
-            else
-            echo "Fill email address"
-            read -r email
-            ssh-keygen -t rsa -b 4096 -C "$email"
-            echo "Directory created"
-            fi
-            ;;
-        "Copy SSH key")
-            if [ -f "$ssh_dir" ]
-            then
-            echo "Copy following:"
-            cat "$ssh_dir.pub"
-            else
-            echo "Missing SSH key"
-            fi
             ;;
         "Add SSH host")
             echo "Fill host name (without spaces):"
@@ -112,6 +92,26 @@ do
             echo "no hosts found"
           fi
           ;;
+        "Generate SSH key")
+            if [ -f "$ssh_dir" ]
+            then
+            echo "SSH key exist"
+            else
+            echo "Fill email address"
+            read -r email
+            ssh-keygen -t rsa -b 4096 -C "$email"
+            echo "Directory created"
+            fi
+            ;;
+        "Copy SSH key")
+            if [ -f "$ssh_dir" ]
+            then
+            echo "Copy following:"
+            cat "$ssh_dir.pub"
+            else
+            echo "Missing SSH key"
+            fi
+            ;;
         "Install docker")
             echo "Will try to install docker and docker compose"
             sudo apt update
